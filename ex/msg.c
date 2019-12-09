@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+// #include <linux/msg.h>
 #include <assert.h>
 
 struct mymsgbuf {
@@ -12,11 +13,12 @@ struct mymsgbuf {
   double some2;
 } msg;
 
+int get_qid(void);
 int open_queue(key_t keyval);
 int remove_queue(int qid);
-int get_qid(void);
 int send_message(int qid, struct mymsgbuf *qbuf);
 int read_message(int qid, long type, struct mymsgbuf *qbuf);
+int get_queue_ds(int qid, struct msqid_ds *qbuf);
 
 #define check_error(val, msg) \
   do {                        \
@@ -46,6 +48,9 @@ int main() {
   assert(msg.mtype == 9);
   assert(msg.some1 == 99);
   assert(msg.some2 == 999.0);
+
+  struct msqid_ds mqs;
+  check_error(get_queue_ds(qid, &mqs), "Read msqid_ds");
 
   check_error(remove_queue(qid), "remove queue");
 
@@ -89,4 +94,8 @@ int peek_message(int qid, long type) {
     return errno == E2BIG;
   }
   return 0;
+}
+
+int get_queue_ds(int qid, struct msqid_ds *qbuf) {
+  return msgctl(qid, IPC_STAT, qbuf);
 }
