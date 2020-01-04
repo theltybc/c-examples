@@ -143,6 +143,7 @@ void setRS485(void) {
 
 
 void set_rts(int flag) {
+  // todo: this can be replae by TIOCMBIS TIOCMBIC ?
   unsigned status;
   if (ioctl(dev_fd, TIOCMGET, &status)) {
     goto error;
