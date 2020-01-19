@@ -4,30 +4,28 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <assert.h>
+
+#define RETURN_CODE 111 // some number
+
+static_assert(RETURN_CODE < (1 << 8) && RETURN_CODE > 0, "RETURN_CODE out of range"); // is UNIX standart?
 
 int main() {
   pid_t pid;
   int rv;
   switch (pid = fork()) {
   case -1:
-    perror("fork"); /* произошла ошибка */
-    exit(1);        /*выход из родительского процесса*/
+    perror("fork");
+    exit(EXIT_FAILURE);
   case 0:
-    printf(" CHILD: Это процесс-потомок!\n");
-    printf(" CHILD: Мой PID -- %d\n", getpid());
-    printf(" CHILD: PID моего родителя -- %d\n", getppid());
-    printf(" CHILD: Введите мой код возврата (как можно меньше):");
-    int res = scanf("%d", &rv);
-    printf(" CHILD: Выход! %d\n", res);
-    exit(rv);
+    printf(" CHILD: PID -- %d\n", getpid());
+    printf(" CHILD: PPID -- %d\n", getppid());
+    exit(RETURN_CODE);
   default:
-    printf("PARENT: Это процесс-родитель!\n");
-    printf("PARENT: Мой PID -- %d\n", getpid());
+    printf("PARENT: PID -- %d\n", getpid());
     printf("PARENT: PID моего потомка %d\n", pid);
-    printf("PARENT: Я жду, пока потомок не вызовет exit()...\n");
     wait(&rv);
-    printf("PARENT: Код возврата потомка:%d\n", WEXITSTATUS(rv));
-    printf("PARENT: Выход!\n");
+    assert(WEXITSTATUS(rv) == RETURN_CODE);
   }
-  return 0;
+  return EXIT_SUCCESS;
 }
