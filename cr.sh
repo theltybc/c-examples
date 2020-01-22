@@ -39,7 +39,7 @@ checksOff=(
 
 lib=(
   -lm
-  -lpthread 
+  -lpthread
 )
 
 
@@ -68,8 +68,8 @@ cc_args=(
   ${checksOn[@]}
   ${checksOff[@]}
   $args
-  ${lib[@]}
   $file
+  ${lib[@]}
 )
 
 # echo ${cc_args[@]}
