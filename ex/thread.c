@@ -14,6 +14,7 @@
 int err = 0;
 const int th_arg = 1234;
 pthread_key_t key;
+
 volatile int on_exit_thread_called = 0;
 volatile int detached_thread_fn_sleep = 0;
 
