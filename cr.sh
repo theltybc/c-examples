@@ -40,6 +40,8 @@ checksOff=(
 lib=(
   -lm
   -lpthread
+  # -lrt
+  -lpcap
 )
 
 
