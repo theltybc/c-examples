@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <assert.h>
 
+void add_filter(pcap_t *dev);
 void get_one_packet(pcap_t *dev);
 void get_packet(pcap_t *dev);
 
@@ -27,11 +28,33 @@ int main() {
   pcap_t *dev = pcap_open_live(dev_name, BUFFER_SIZE, 1, 10, err_buff);
   check_error(dev, "open device");
 
+  add_filter(dev);
+
   get_one_packet(dev);
 
   get_packet(dev);
 
   return EXIT_SUCCESS;
+}
+
+void add_filter(pcap_t *dev) {
+  // int pcap_compile(pcap_t *p, struct bpf_program *fp, const char *str, int optimize, bpf_u_int32 mask);
+  int res;
+  struct bpf_program fp;
+  // res = pcap_compile(dev, &fp, "tcp", 1, 0xFFFFFF00); // mask 255.255.255.0
+  res = pcap_compile(dev, &fp, "tcp", 1, PCAP_NETMASK_UNKNOWN);
+  if (res) {
+    pcap_perror(dev, err_buff);
+    printf("Fail compile filter - %s\n", err_buff);
+    exit(EXIT_FAILURE);
+  }
+  // int pcap_setfilter(pcap_t * p, struct bpf_program * fp)
+  res = pcap_setfilter(dev, &fp);
+  if (res) {
+    pcap_perror(dev, err_buff);
+    printf("Fail set filter - %s\n", err_buff);
+    exit(EXIT_FAILURE);
+  }
 }
 
 // void callback_function(u_char *arg, const struct pcap_pkthdr* pkthdr, const u_char* packet)
