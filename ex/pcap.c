@@ -2,10 +2,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <ctype.h>
 
 void add_filter(pcap_t *dev);
 void get_one_packet(pcap_t *dev);
 void get_packet(pcap_t *dev);
+void print(const u_char *data, bpf_u_int32 len);
 
 char err_buff[PCAP_ERRBUF_SIZE];
 
@@ -72,9 +74,7 @@ void callback_function(u_char *arg, const struct pcap_pkthdr *data, const u_char
   assert(arg == NULL);
   printf("caplen = %u; len = %u\n", data->caplen, data->len);
   assert(data->caplen == data->len);
-  for (unsigned i = 0; i < data->len; i++) {
-    putc(packet[i], stdout);
-  }
+  print(packet, data->len);
   putc('\n', stdout);
 }
 
@@ -98,8 +98,17 @@ void get_one_packet(pcap_t *dev) {
   }
   printf("caplen = %u; len = %u\n", data.caplen, data.len);
   assert(data.caplen == data.len);
-  for (unsigned i = 0; i < data.caplen; i++) {
-    putc(packet[i], stdout);
-  }
+  print(packet, data.caplen);
   putc('\n', stdout);
+}
+
+void print(const u_char *data, bpf_u_int32 len) {
+  for (unsigned i = 0; i < len; i++) {
+    if (isprint(data[i])) {
+      putc(data[i], stdout);
+    } else {
+      // printf("0x%x", data[i]);
+      putc('*', stdout);
+    }
+  }
 }
