@@ -19,10 +19,20 @@ char data_buffer[BUFFER_SIZE];
   }
 
 int main() {
+  int res;
   char *dev_name = pcap_lookupdev(err_buff);
   // char *dev_name = "wlx00117f74dbf1";
   check_error(dev_name, "get device");
   printf("auto select dev: %s\n", dev_name);
+
+  // int pcap_lookupnet(const char *device, bpf_u_int32 *netp, bpf_u_int32 *maskp, char *errbuf)
+  u_int32_t ip, mask;
+  res = pcap_lookupnet(dev_name, &ip, &mask, err_buff);
+  if (res) {
+    printf("Fail: lookupnet - %s\n", err_buff);
+  } else {
+    printf("IP: %x; Mask: %x\n", ip, mask);
+  }
 
   // pcap_t *pcap_open_live(const char *device, int snaplen, int promisc, int to_ms, char *errbuf)
   pcap_t *dev = pcap_open_live(dev_name, BUFFER_SIZE, 1, 10, err_buff);
