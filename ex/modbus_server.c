@@ -15,13 +15,13 @@
 
 #include <modbus.h>
 
-#define SLAVE_ID 1
+#define SLAVE_ID 11
 
 int main(void) {
   modbus_t *ctx;
   modbus_mapping_t *mb_mapping;
 
-  ctx = modbus_new_rtu("/dev/ttyUSB0", 115200, 'N', 8, 1);
+  ctx = modbus_new_rtu("/dev/ttyUSB1", 19200, 'N', 8, 1);
   // modbus_set_debug(ctx, TRUE);
 
   if (modbus_set_slave(ctx, SLAVE_ID)) {
@@ -35,8 +35,9 @@ int main(void) {
     modbus_free(ctx);
     return -1;
   }
-
-  mb_mapping = modbus_mapping_new(500, 500, 500, 500);
+  // modbus_mapping_t* modbus_mapping_new(int nb_coil_status, int nb_input_status,
+  //                                      int nb_holding_registers, int nb_input_registers)
+  mb_mapping = modbus_mapping_new(0, 0, MODBUS_MAX_RW_WRITE_REGISTERS, 0);
   if (mb_mapping == NULL) {
     fprintf(stderr, "Failed to allocate the mapping: %s\n",
             modbus_strerror(errno));
@@ -53,7 +54,7 @@ int main(void) {
       printf("reply\n");
       /* rc is the query size */
       modbus_reply(ctx, query, rc, mb_mapping);
-      for (int i = 0; i < mb_mapping->nb_registers; i++){
+      for (int i = 0; i < mb_mapping->nb_registers; i++) {
         mb_mapping->tab_registers[i]++;
       }
     } else if (rc == -1) {
