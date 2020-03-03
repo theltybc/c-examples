@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+// compile with `pkg-config --cflags --libs libmodbus`
+
 #include <stdio.h>
 #ifndef _MSC_VER
 #include <unistd.h>

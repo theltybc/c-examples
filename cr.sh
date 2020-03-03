@@ -42,7 +42,7 @@ lib=(
   -lpthread
   -lrt
   -lpcap
-  `pkg-config --cflags --libs libmodbus `
+  `pkg-config --cflags --libs libmodbus`
 )
 
 
