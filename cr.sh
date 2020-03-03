@@ -40,8 +40,9 @@ checksOff=(
 lib=(
   -lm
   -lpthread
-  # -lrt
+  -lrt
   -lpcap
+  `pkg-config --cflags --libs libmodbus `
 )
 
 
