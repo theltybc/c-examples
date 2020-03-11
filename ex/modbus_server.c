@@ -15,13 +15,13 @@
 
 #include <modbus.h>
 
-#define SLAVE_ID 11
+#define SLAVE_ID 1
 
 int main(void) {
   modbus_t *ctx;
   modbus_mapping_t *mb_mapping;
 
-  ctx = modbus_new_rtu("/dev/ttyUSB1", 19200, 'N', 8, 1);
+  ctx = modbus_new_rtu("/dev/ttyUSB0", 115200, 'N', 8, 1);
   // modbus_set_debug(ctx, TRUE);
 
   if (modbus_set_slave(ctx, SLAVE_ID)) {
