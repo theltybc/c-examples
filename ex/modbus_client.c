@@ -14,22 +14,9 @@
 
 #include <modbus.h>
 
-/* The goal of this program is to check all major functions of
-   libmodbus:
-   - write_coil
-   - read_bits
-   - write_coils
-   - write_register
-   - read_registers
-   - write_registers
-   - read_registers
-
-   All these functions are called with random values on a address
-   range defined by the following defines.
-*/
 #define SERVER_ID 1
 #define ADDRESS_START 0
-#define ADDRESS_END 2
+#define ADDRESS_END 9
 
 /* At each loop, the program works in the range ADDRESS_START to
  * ADDRESS_END then ADDRESS_START + 1 to ADDRESS_END and so on.
@@ -39,9 +26,7 @@ int main(void) {
   int rc;
   int addr;
   int nb;
-  uint8_t *tab_rq_bits;
   uint16_t *tab_rq_registers;
-  uint16_t *tab_rw_rq_registers;
   uint16_t *tab_rp_registers;
 
   /* RTU */
@@ -62,17 +47,12 @@ int main(void) {
   /* Allocate and initialize the different memory spaces */
   nb = ADDRESS_END - ADDRESS_START;
 
-  tab_rq_bits = (uint8_t *)malloc(nb * sizeof(uint8_t));
-  memset(tab_rq_bits, 0, nb * sizeof(uint8_t));
 
   tab_rq_registers = (uint16_t *)malloc(nb * sizeof(uint16_t));
   memset(tab_rq_registers, 0, nb * sizeof(uint16_t));
 
   tab_rp_registers = (uint16_t *)malloc(nb * sizeof(uint16_t));
   memset(tab_rp_registers, 0, nb * sizeof(uint16_t));
-
-  tab_rw_rq_registers = (uint16_t *)malloc(nb * sizeof(uint16_t));
-  memset(tab_rw_rq_registers, 0, nb * sizeof(uint16_t));
 
   while (1) {
     for (addr = ADDRESS_START; addr < ADDRESS_END; addr++) {
@@ -81,8 +61,6 @@ int main(void) {
       /* Random numbers (short) */
       for (i = 0; i < nb; i++) {
         tab_rq_registers[i] = (uint16_t)(65535.0 * rand() / (RAND_MAX + 1.0));
-        tab_rw_rq_registers[i] = ~tab_rq_registers[i];
-        tab_rq_bits[i] = tab_rq_registers[i] % 2;
       }
       nb = ADDRESS_END - addr;
 
@@ -112,10 +90,8 @@ int main(void) {
   }
 
   /* Free the memory */
-  free(tab_rq_bits);
   free(tab_rq_registers);
   free(tab_rp_registers);
-  free(tab_rw_rq_registers);
 
   /* Close the connection */
   modbus_close(ctx);
