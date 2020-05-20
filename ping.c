@@ -124,15 +124,13 @@ void send_ping(int ping_sockfd, struct sockaddr_in *ping_addr,
   if (setsockopt(ping_sockfd, SOL_IP, IP_TTL, &ttl_val, sizeof(ttl_val)) != 0) {
     printf("\nSetting socket options to TTL failed!\n");
     return;
-  }
-
-  else {
+  } else {
     printf("\nSocket set to TTL..\n");
   }
 
   // setting timeout of recv setting
   setsockopt(ping_sockfd, SOL_SOCKET, SO_RCVTIMEO,
-             (const char *)&tv_out, sizeof tv_out);
+             (const char *)&tv_out, sizeof(tv_out));
 
   // send icmp packet in an infinite loop
   while (pingloop) {
@@ -146,8 +144,9 @@ void send_ping(int ping_sockfd, struct sockaddr_in *ping_addr,
     pckt.hdr.un.echo.id = getpid();
 
     size_t i;
-    for (i = 0; i < sizeof(pckt.msg) - 1; i++)
+    for (i = 0; i < sizeof(pckt.msg) - 1; i++) {
       pckt.msg[i] = i + '0';
+    }
 
     pckt.msg[i] = 0;
     pckt.hdr.un.echo.sequence = msg_count++;
@@ -169,9 +168,7 @@ void send_ping(int ping_sockfd, struct sockaddr_in *ping_addr,
     if (recvfrom(ping_sockfd, &pckt, sizeof(pckt), 0, &r_addr, &addr_len) <= 0 &&
         msg_count > 1) {
       perror("fail: packet receive");
-    }
-
-    else {
+    } else {
       clock_gettime(CLOCK_MONOTONIC, &time_end);
 
       double timeElapsed = ((double)(time_end.tv_nsec - time_start.tv_nsec)) / 1000000.0;
@@ -179,7 +176,7 @@ void send_ping(int ping_sockfd, struct sockaddr_in *ping_addr,
 
       // if packet was not sent, don't receive
       if (flag) {
-        if (!(pckt.hdr.type == 69 && pckt.hdr.code == 0)) {
+        if (pckt.hdr.type != 69 || pckt.hdr.code != ICMP_ECHOREPLY) {
           printf("Error..Packet received with ICMP  type % d code % d\n ", pckt.hdr.type, pckt.hdr.code);
         } else {
           printf("%d bytes from %s (h: %s) (%s) msg_seq = %d ttl = %d rtt = % Lf ms.\n ",

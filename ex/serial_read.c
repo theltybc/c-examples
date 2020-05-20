@@ -11,14 +11,16 @@
 #include <termios.h>
 #include <errno.h>
 #include <assert.h>
+#include <time.h>
 
 int dev_fd;
 int file_fd;
 FILE *error_log;
 // #define error_log stderr
 
-const char *dev_file = "/dev/ttyS2";
-const char *log_file = "/home/pi/gps_log.log";
+const char *dev_file = "/dev/ttyUSB2";
+const char *log_file = "/home/we/gps_log.log";
+const char *error_file = "/home/we/log";
 
 char buffer[150];
 
@@ -32,7 +34,11 @@ void from_port_to_log(void);
 
 int main() {
   while (1) {
-    error_log = fopen("/home/pi/log", "a+");
+    error_log = fopen(error_file, "wa+");
+    if (error_log == NULL) {
+      perror("FAIL: error_log open");
+      abort();
+    }
     open_port();
     flush_port();
     setup_port();
@@ -41,6 +47,7 @@ int main() {
     close(dev_fd);
     close(file_fd);
     fclose(error_log);
+    usleep(10);
   }
 
   return EXIT_SUCCESS;
@@ -75,6 +82,10 @@ void from_port_to_log(void) {
 }
 
 void open_port(void) {
+  if (access(dev_file, F_OK | R_OK | W_OK) != 0) {
+    perror("dev access error");
+    abort();
+  }
   dev_fd = open(dev_file, O_RDWR | O_NOCTTY /* | O_NDELAY */);
   if (dev_fd < 0) {
     fprintf(error_log, "Opening ERROR %s\n", dev_file);
@@ -83,7 +94,7 @@ void open_port(void) {
     // printf("Opening OK %s\n", dev_file);
   }
   int res = fcntl(dev_fd, F_SETFL, 0);
-  if (res != 0){
+  if (res != 0) {
     fprintf(error_log, "fail fcntl\n");
   }
 }
