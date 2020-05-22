@@ -20,6 +20,8 @@
 int main(void) {
   modbus_t *ctx;
   modbus_mapping_t *mb_mapping;
+  unsigned reqest_count = 0;
+  unsigned error_count = 0;
 
   ctx = modbus_new_rtu("/dev/ttyUSB0", 115200, 'N', 8, 1);
   // modbus_set_debug(ctx, TRUE);
@@ -45,23 +47,27 @@ int main(void) {
     return -1;
   }
 
-  for (;;) {
+  while (errno != ECONNRESET) {
+    modbus_flush(ctx);
     uint8_t query[MODBUS_TCP_MAX_ADU_LENGTH];
     int rc;
 
     rc = modbus_receive(ctx, query);
+    reqest_count++;
     if (rc > 0) {
-      printf("reply\n");
+      // printf("reply\n");
       /* rc is the query size */
       modbus_reply(ctx, query, rc, mb_mapping);
-      for (int i = 0; i < mb_mapping->nb_registers; i++) {
-        mb_mapping->tab_registers[i]++;
-      }
+      // for (int i = 0; i < mb_mapping->nb_registers; i++) {
+      //   mb_mapping->tab_registers[i]++;
+      // }
     } else if (rc == -1) {
-      /* Connection closed by the client or error */
+      error_count++;
       printf("Fail: %s\n", modbus_strerror(errno));
     }
-    usleep(100000);
+    if (reqest_count % 100 == 0) {
+      printf("Request: %u; error: %u; %%: %f;\n", reqest_count, error_count, ((float)error_count / (float)reqest_count));
+    }
   }
 
   printf("Quit the loop: %s\n", modbus_strerror(errno));
