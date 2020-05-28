@@ -1,8 +1,3 @@
-// #include <linux/serial.h>
-// #include <linux/serial_core.h>
-// #include <linux/serial_reg.h>
-// #include <stdint.h>
-// #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -13,35 +8,39 @@
 #include <assert.h>
 #include <time.h>
 
+#include "serial.h"
+
 int dev_fd;
 int file_fd;
 FILE *error_log;
 // #define error_log stderr
 
-const char *dev_file = "/dev/ttyUSB2";
+const char *dev_file = "/dev/ttyUSB0";
 const char *log_file = "/home/we/gps_log.log";
 const char *error_file = "/home/we/log";
 
 char buffer[150];
 
-void open_port(void);
-void flush_port(void);
-void setup_port(void);
-void get_conf(struct termios *conf);
-void set_conf(const struct termios *conf);
 void open_log(void);
 void from_port_to_log(void);
 
 int main() {
+  int res;
   while (1) {
     error_log = fopen(error_file, "wa+");
     if (error_log == NULL) {
       perror("FAIL: error_log open");
       abort();
     }
-    open_port();
-    flush_port();
-    setup_port();
+    dev_fd = open_port(dev_file);
+    if (dev_fd < 0) {
+      return EXIT_FAILURE;
+    }
+    flush_port(dev_fd);
+    res = setup_port(dev_fd);
+    if (res != 0) {
+      return EXIT_FAILURE;
+    }
     open_log();
     from_port_to_log();
     close(dev_fd);
@@ -78,69 +77,5 @@ void from_port_to_log(void) {
         fprintf(error_log, "not all data been write in file. errno = %i\n", errno);
       }
     }
-  }
-}
-
-void open_port(void) {
-  if (access(dev_file, F_OK | R_OK | W_OK) != 0) {
-    perror("dev access error");
-    abort();
-  }
-  dev_fd = open(dev_file, O_RDWR | O_NOCTTY /* | O_NDELAY */);
-  if (dev_fd < 0) {
-    fprintf(error_log, "Opening ERROR %s\n", dev_file);
-    abort();
-  } else {
-    // printf("Opening OK %s\n", dev_file);
-  }
-  int res = fcntl(dev_fd, F_SETFL, 0);
-  if (res != 0) {
-    fprintf(error_log, "fail fcntl\n");
-  }
-}
-
-void flush_port(void) {
-  int res = tcflush(dev_fd, TCIOFLUSH);
-  if (res != 0) {
-    fprintf(error_log, "fail tcflush\n");
-  }
-}
-
-void setup_port(void) {
-  struct termios conf;
-  get_conf(&conf);
-
-  conf.c_iflag =
-      (0 | IGNBRK | IUTF8) & ~(0 | IXON | IXOFF | IXANY | ICRNL);
-  conf.c_oflag = (0) & ~(0 | OPOST);
-  conf.c_lflag =
-      (0 | IEXTEN) &
-      ~(0 | ECHOE | ECHOK | ECHO | ECHOCTL | ECHOKE | ECHONL | ISIG | IEXTEN | ICANON);
-  conf.c_cflag =
-      (0 | CS8 | CLOCAL | CRTSCTS | HUPCL | CSIZE | CREAD | CLOCAL) &
-      ~(0 | PARODD | CSTOPB);
-
-  conf.c_cc[VMIN] = 10;
-  conf.c_cc[VTIME] = 1;
-
-  conf.c_line = (0 | TIOCM_RTS) & ~(0);
-
-  cfsetispeed(&conf, B9600);
-  cfsetospeed(&conf, B9600);
-
-  set_conf(&conf);
-}
-
-void get_conf(struct termios *conf) {
-  if (tcgetattr(dev_fd, conf) != 0) {
-    fprintf(error_log, "Get parameters failed %s %i\n", dev_file, errno);
-    abort();
-  }
-}
-
-void set_conf(const struct termios *conf) {
-  if (tcsetattr(dev_fd, TCSANOW, conf) != 0) {
-    fprintf(error_log, "Set parameters failed %s %i\n", dev_file, errno);
-    abort();
   }
 }
