@@ -16,7 +16,7 @@
 
 #define SERVER_ID 1
 #define ADDRESS_START 0
-#define ADDRESS_END 9
+#define ADDRESS_END 30
 
 /* At each loop, the program works in the range ADDRESS_START to
  * ADDRESS_END then ADDRESS_START + 1 to ADDRESS_END and so on.
@@ -28,15 +28,15 @@ int main(void) {
   int nb;
   uint16_t *tab_rq_registers;
   uint16_t *tab_rp_registers;
+  unsigned error_count = 0;
+  unsigned reqest_count = 0;
 
   /* RTU */
-  // ctx = modbus_new_rtu("/dev/ttyUSB0", 115200, 'N', 8, 1);
-  ctx = modbus_new_rtu("/dev/ttyUSB0", 115200, 'N', 8, 1);
+  ctx = modbus_new_rtu("/dev/ttyUSB1", 115200, 'N', 8, 1);
   modbus_set_slave(ctx, SERVER_ID);
 
-  /* TCP */
-  // ctx = modbus_new_tcp("127.0.0.1", 1502);
-  // modbus_set_debug(ctx, TRUE);
+  struct timeval tv = {0, 200 * 1000};
+  modbus_set_response_timeout(ctx, &tv);
 
   if (modbus_connect(ctx) == -1) {
     fprintf(stderr, "Connection failed: %s\n", modbus_strerror(errno));
@@ -47,15 +47,15 @@ int main(void) {
   /* Allocate and initialize the different memory spaces */
   nb = ADDRESS_END - ADDRESS_START;
 
-
   tab_rq_registers = (uint16_t *)malloc(nb * sizeof(uint16_t));
   memset(tab_rq_registers, 0, nb * sizeof(uint16_t));
 
   tab_rp_registers = (uint16_t *)malloc(nb * sizeof(uint16_t));
   memset(tab_rp_registers, 0, nb * sizeof(uint16_t));
 
-  while (1) {
+  while (errno != EIO) {
     for (addr = ADDRESS_START; addr < ADDRESS_END; addr++) {
+      modbus_flush(ctx);
       int i;
 
       /* Random numbers (short) */
@@ -66,13 +66,17 @@ int main(void) {
 
       /* MULTIPLE REGISTERS */
       rc = modbus_write_registers(ctx, addr, nb, tab_rq_registers);
+      reqest_count++;
       if (rc != nb) {
-        printf("ERROR modbus_write_registers (%d)\n", rc);
+        error_count++;
+        printf("ERROR modbus_write_registers (%d) %s\n", rc, modbus_strerror(errno));
         printf("Address = %d, nb = %d\n", addr, nb);
       } else {
         rc = modbus_read_registers(ctx, addr, nb, tab_rp_registers);
+        reqest_count++;
         if (rc != nb) {
-          printf("ERROR modbus_read_registers (%d)\n", rc);
+          error_count++;
+          printf("ERROR modbus_read_registers (%d) %s\n", rc, modbus_strerror(errno));
           printf("Address = %d, nb = %d\n", addr, nb);
         } else {
           for (i = 0; i < nb; i++) {
@@ -85,8 +89,9 @@ int main(void) {
           }
         }
       }
-      usleep(100000);
+      usleep(10000);
     }
+    printf("Request: %u; error: %u; %%: %f;\n", reqest_count, error_count, ((float)error_count / (float)reqest_count));
   }
 
   /* Free the memory */
