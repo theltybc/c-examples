@@ -39,7 +39,10 @@ int main(void) {
   }
   // modbus_mapping_t* modbus_mapping_new(int nb_coil_status, int nb_input_status,
   //                                      int nb_holding_registers, int nb_input_registers)
-  mb_mapping = modbus_mapping_new(0, 0, MODBUS_MAX_RW_WRITE_REGISTERS, 0);
+  mb_mapping = modbus_mapping_new(MODBUS_MAX_RW_WRITE_REGISTERS,
+                                  MODBUS_MAX_RW_WRITE_REGISTERS,
+                                  MODBUS_MAX_RW_WRITE_REGISTERS,
+                                  MODBUS_MAX_RW_WRITE_REGISTERS);
   if (mb_mapping == NULL) {
     fprintf(stderr, "Failed to allocate the mapping: %s\n",
             modbus_strerror(errno));
@@ -56,6 +59,12 @@ int main(void) {
     reqest_count++;
     if (rc > 0) {
       // printf("reply\n");
+      // printf("speed: %u\n", mb_mapping->tab_registers[0]);
+      // printf("coil: 0b");
+      // for (int i = 0; i < 10; i++) {
+      //   printf("%u", mb_mapping->tab_bits[i]);
+      // }
+      // puts("");
       /* rc is the query size */
       modbus_reply(ctx, query, rc, mb_mapping);
       // for (int i = 0; i < mb_mapping->nb_registers; i++) {
