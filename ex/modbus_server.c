@@ -39,13 +39,10 @@ int main(void) {
   }
   // modbus_mapping_t* modbus_mapping_new(int nb_coil_status, int nb_input_status,
   //                                      int nb_holding_registers, int nb_input_registers)
-  mb_mapping = modbus_mapping_new(MODBUS_MAX_RW_WRITE_REGISTERS,
-                                  MODBUS_MAX_RW_WRITE_REGISTERS,
-                                  MODBUS_MAX_RW_WRITE_REGISTERS,
-                                  MODBUS_MAX_RW_WRITE_REGISTERS);
+  mb_mapping = modbus_mapping_new(MODBUS_MAX_RW_WRITE_REGISTERS, MODBUS_MAX_RW_WRITE_REGISTERS,
+                                  MODBUS_MAX_RW_WRITE_REGISTERS, MODBUS_MAX_RW_WRITE_REGISTERS);
   if (mb_mapping == NULL) {
-    fprintf(stderr, "Failed to allocate the mapping: %s\n",
-            modbus_strerror(errno));
+    fprintf(stderr, "Failed to allocate the mapping: %s\n", modbus_strerror(errno));
     modbus_free(ctx);
     return -1;
   }
@@ -75,7 +72,8 @@ int main(void) {
       printf("Fail: %s\n", modbus_strerror(errno));
     }
     if (reqest_count % 100 == 0) {
-      printf("Request: %u; error: %u; %%: %f;\n", reqest_count, error_count, ((float)error_count / (float)reqest_count));
+      printf("Request: %u; error: %u; %%: %f;\n", reqest_count, error_count,
+             ((float)error_count / (float)reqest_count));
     }
   }
 

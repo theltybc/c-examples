@@ -39,15 +39,10 @@ int setup_port(int dev_fd) {
     return -1;
   }
 
-  conf.c_iflag =
-      (0 | IGNBRK | IUTF8) & ~(0 | IXON | IXOFF | IXANY | ICRNL);
+  conf.c_iflag = (0 | IGNBRK | IUTF8) & ~(0 | IXON | IXOFF | IXANY | ICRNL);
   conf.c_oflag = (0) & ~(0 | OPOST);
-  conf.c_lflag =
-      (0 | IEXTEN) &
-      ~(0 | ECHOE | ECHOK | ECHO | ECHOCTL | ECHOKE | ECHONL | ISIG | IEXTEN | ICANON);
-  conf.c_cflag =
-      (0 | CS8 | CLOCAL | CRTSCTS | HUPCL | CSIZE | CREAD | CLOCAL) &
-      ~(0 | PARODD | CSTOPB);
+  conf.c_lflag = (0 | IEXTEN) & ~(0 | ECHOE | ECHOK | ECHO | ECHOCTL | ECHOKE | ECHONL | ISIG | IEXTEN | ICANON);
+  conf.c_cflag = (0 | CS8 | CLOCAL | CRTSCTS | HUPCL | CSIZE | CREAD | CLOCAL) & ~(0 | PARODD | CSTOPB);
 
   conf.c_cc[VMIN] = 10;
   conf.c_cc[VTIME] = 1;

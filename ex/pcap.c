@@ -70,7 +70,8 @@ void add_filter(pcap_t *dev) {
 }
 
 // void callback_function(u_char *arg, const struct pcap_pkthdr* pkthdr, const u_char* packet)
-void callback_function(u_char *arg __attribute__((unused)), const struct pcap_pkthdr *pkthdr, const u_char *packet __attribute__((unused))) {
+void callback_function(u_char *arg __attribute__((unused)), const struct pcap_pkthdr *pkthdr,
+                       const u_char *packet __attribute__((unused))) {
   assert(arg == NULL);
   printf("caplen = %u; len = %u\n", pkthdr->caplen, pkthdr->len);
   assert(pkthdr->caplen == pkthdr->len);

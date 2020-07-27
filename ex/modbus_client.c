@@ -125,8 +125,7 @@ int main(void) {
       reqest_count++;
       if (rc != 1) {
         printf("ERROR modbus_write_register (%d) %s\n", rc, modbus_strerror(errno));
-        printf("Address = %d, value = %d (0x%X)\n",
-               addr, tab_rq_registers[0], tab_rq_registers[0]);
+        printf("Address = %d, value = %d (0x%X)\n", addr, tab_rq_registers[0], tab_rq_registers[0]);
         error_count++;
       } else {
         rc = modbus_read_registers(ctx, addr, 1, tab_rp_registers);
@@ -138,8 +137,7 @@ int main(void) {
         } else {
           if (tab_rq_registers[0] != tab_rp_registers[0]) {
             printf("ERROR modbus_read_registers single\n");
-            printf("Address = %d, value = %d (0x%X) != %d (0x%X)\n",
-                   addr, tab_rq_registers[0], tab_rq_registers[0],
+            printf("Address = %d, value = %d (0x%X) != %d (0x%X)\n", addr, tab_rq_registers[0], tab_rq_registers[0],
                    tab_rp_registers[0], tab_rp_registers[0]);
             error_count++;
           }
@@ -165,8 +163,7 @@ int main(void) {
           for (i = 0; i < nb; i++) {
             if (tab_rq_registers[i] != tab_rp_registers[i]) {
               printf("ERROR modbus_read_registers\n");
-              printf("Address = %d, value %d (0x%X) != %d (0x%X)\n",
-                     addr, tab_rq_registers[i], tab_rq_registers[i],
+              printf("Address = %d, value %d (0x%X) != %d (0x%X)\n", addr, tab_rq_registers[i], tab_rq_registers[i],
                      tab_rp_registers[i], tab_rp_registers[i]);
             }
           }
