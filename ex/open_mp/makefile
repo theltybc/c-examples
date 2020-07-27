@@ -15,13 +15,13 @@ CHECKS_ON=\
   -Wall \
   -Wextra \
   -Wpedantic \
-  -Weverything
+  # -Weverything
 
 CHECKS_OFF= \
-  -Wno-gnu-binary-literal
-  # -fno-strict-aliasing \
-  # -Wno-nested-externs \
-  # -fno-stack-protector
+  -Wno-gnu-binary-literal \
+  # -Wno-vla \
+  # -Wno-float-conversion \
+  # -Wno-bad-function-cast \
 
 
 LIBS= \
