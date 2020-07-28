@@ -89,7 +89,7 @@ char *dns_lookup(char *addr_host, struct sockaddr_in *addr_con) {
 char *reverse_dns_lookup(char *ip_addr) {
   struct sockaddr_in temp_addr;
   socklen_t len;
-  char buf[NI_MAXHOST], *ret_buf;
+  char buf[NI_MAXHOST];
 
   temp_addr.sin_family = AF_INET;
   temp_addr.sin_addr.s_addr = inet_addr(ip_addr);
@@ -99,9 +99,7 @@ char *reverse_dns_lookup(char *ip_addr) {
     printf("Could not resolve reverse lookup of hostname\n");
     return NULL;
   }
-  ret_buf = (char *)malloc((strlen(buf) + 1) * sizeof(char));
-  strcpy(ret_buf, buf);
-  return ret_buf;
+  return strdup(buf);
 }
 
 // make a ping request
