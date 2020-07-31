@@ -148,6 +148,7 @@ struct package_info *get_packet_info(const u_char *packet) {
 
   return pi;
 }
+
 void free_packet_info(struct package_info *pi) {
   free(pi->ip_src);
   free(pi->host_src);
