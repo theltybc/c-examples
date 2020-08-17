@@ -41,6 +41,7 @@ int main() {
   fd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
   if (fd < 0) {
     perror("fail open socket");
+    abort();
   }
 
   struct timeval tv_out;
