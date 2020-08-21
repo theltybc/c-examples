@@ -23,6 +23,8 @@ unsigned short checksum(unsigned short *buff, int _16bitword) {
 }
 
 int main() {
+  int dev_index;
+
   int sock_raw = socket(AF_PACKET, SOCK_RAW, IPPROTO_RAW);
   if (sock_raw == -1) {
     perror("error in socket");
@@ -30,16 +32,19 @@ int main() {
   }
   struct ifreq ifreq_i;
 
-  ifreq_i.ifr_ifindex = 2;
+  ifreq_i.ifr_ifindex = 1;
   if ((ioctl(sock_raw, SIOCGIFNAME, &ifreq_i)) < 0) {
     perror("ioctl reading name");
   }
-  printf("interface = %s\n", ifreq_i.ifr_name);
+  char dev[IFNAMSIZ];
+  strcpy(dev, ifreq_i.ifr_name);
+  printf("interface = %s\n", dev);
 
   if ((ioctl(sock_raw, SIOCGIFINDEX, &ifreq_i)) < 0) {
     perror("error in index ioctl reading"); //getting Index Name
   }
-  printf("index = %d\n", ifreq_i.ifr_ifindex);
+  dev_index = ifreq_i.ifr_ifindex;
+  printf("index = %d\n", dev_index);
 
   if ((ioctl(sock_raw, SIOCGIFHWADDR, &ifreq_i)) < 0) { //getting MAC Address
     perror("error in SIOCGIFHWADDR ioctl reading");
@@ -113,7 +118,7 @@ int main() {
   assert(total_len < sizeof(sendbuff));
 
   struct sockaddr_ll sadr_ll;
-  sadr_ll.sll_ifindex = ifreq_i.ifr_ifindex; // index of interface
+  sadr_ll.sll_ifindex = dev_index; // index of interface
   sadr_ll.sll_halen = ETH_ALEN;              // length of destination mac address
   sadr_ll.sll_addr[0] = 0;
   sadr_ll.sll_addr[1] = 0;
