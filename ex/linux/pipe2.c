@@ -13,9 +13,7 @@
 int main(void) {
   int cntr;
   FILE *pipe_fp;
-  char *strings[MAXSTRS] = {"echo", "bravo",
-                            "alpha", "charlie",
-                            "delta"};
+  char *strings[MAXSTRS] = {"echo", "bravo", "alpha", "charlie", "delta"};
 
   /* Create one way pipe line with call to popen() */
   pipe_fp = popen("sort", "w");

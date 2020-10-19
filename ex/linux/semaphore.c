@@ -65,4 +65,3 @@ int semaphore_lock(int sid) {
 int remove_semaphore(int sid, int numsems) {
   return semctl(sid, numsems, IPC_RMID);
 }
-

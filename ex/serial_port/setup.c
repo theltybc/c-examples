@@ -48,15 +48,10 @@ void setup_port(void) {
   struct termios conf;
   get_conf(&conf);
 
-  conf.c_iflag =
-      (0 | IGNBRK | IUTF8) & ~(0 | IGNBRK | IXON | IXOFF | IXANY | ICRNL);
+  conf.c_iflag = (0 | IGNBRK | IUTF8) & ~(0 | IGNBRK | IXON | IXOFF | IXANY | ICRNL);
   conf.c_oflag = (0) & ~(0 | OPOST);
-  conf.c_lflag =
-      (0 | ISIG | IEXTEN) &
-      ~(0 | ECHOE | ECHOK | ECHO | ECHOCTL | ECHOKE | ECHONL | ISIG | IEXTEN | ICANON);
-  conf.c_cflag =
-      (0 | CS8 | CLOCAL | CRTSCTS | HUPCL | CSIZE | CSTOPB | CREAD | CLOCAL) &
-      ~(0 | PARODD | CSTOPB);
+  conf.c_lflag = (0 | ISIG | IEXTEN) & ~(0 | ECHOE | ECHOK | ECHO | ECHOCTL | ECHOKE | ECHONL | ISIG | IEXTEN | ICANON);
+  conf.c_cflag = (0 | CS8 | CLOCAL | CRTSCTS | HUPCL | CSIZE | CSTOPB | CREAD | CLOCAL) & ~(0 | PARODD | CSTOPB);
 
   conf.c_cc[VMIN] = 0;
   conf.c_cc[VTIME] = 0;
