@@ -16,37 +16,40 @@ int fd;
 
 const char *fileName = "/dev/ttyS2";
 
-void open_port(void);
-void setup_port(void);
-void get_conf(struct termios *conf);
-void set_conf(const struct termios *conf);
-void spam_to_port(void);
-void set_rts(int flag);
+int open_port(const char *fileName);
+void setup_port(int fd);
+void get_conf(int fd, struct termios *conf);
+void set_conf(int fd, const struct termios *conf);
+void spam_to_port(int fd);
+void set_rts(int fd, int flag);
 
 int main() {
-  open_port();
+  fd = open_port(fileName);
   tcflush(fd, TCIOFLUSH);
-  setup_port();
-  spam_to_port();
+  setup_port(fd);
+  spam_to_port(fd);
   close(fd);
   return EXIT_SUCCESS;
 }
 
-void open_port(void) {
+int open_port(const char *fileName) {
   fd = open(fileName, O_RDWR | O_NOCTTY | O_NDELAY);
   fcntl(fd, F_SETFL, 0);
   if (fd < 0) {
-    printf("Opening ERROR %s\n", fileName);
-    abort();
-  } else {
-    printf("Opening OK %s\n", fileName);
+    goto error;
   }
-  fcntl(fd, F_SETFL, 0);
+  if (0 != fcntl(fd, F_SETFL, 0)) {
+    goto error;
+  }
+  return fd;
+error:
+  perror("Opening");
+  abort();
 }
 
-void setup_port(void) {
+void setup_port(int fd) {
   struct termios conf;
-  get_conf(&conf);
+  get_conf(fd, &conf);
 
   conf.c_iflag = (0 | IGNBRK | IUTF8) & ~(0 | IGNBRK | IXON | IXOFF | IXANY | ICRNL);
   conf.c_oflag = (0) & ~(0 | OPOST);
@@ -63,42 +66,40 @@ void setup_port(void) {
   printf("speed IN = %u\n", cfgetispeed(&conf));
   printf("speed OUT = %u\n", cfgetospeed(&conf));
 
-  set_conf(&conf);
+  set_conf(fd, &conf);
 }
 
-void get_conf(struct termios *conf) {
+void get_conf(int fd, struct termios *conf) {
   if (tcgetattr(fd, conf) != 0) {
-    printf("Get parameters failed %s %i\n", fileName, errno);
+    perror("Get parameters failed");
     abort();
   }
 }
 
-void set_conf(const struct termios *conf) {
+void set_conf(int fd, const struct termios *conf) {
   if (tcsetattr(fd, TCSANOW, conf) != 0) {
-    printf("Set parameters failed %s %i\n", fileName, errno);
+    perror("Set parameters failed");
     abort();
-  } else {
-    printf("Set parameters OK %s\n", fileName);
   }
 }
 
-void spam_to_port(void) {
+void spam_to_port(int fd) {
   uint32_t i1 = 0;
   const char *str = "1234567890123456789123456789123456789123456789123456789"
                     "1234567890123456789123456789123456789123456789123456789";
   const size_t len = strlen(str);
   while (i1 < 10) {
-    set_rts(1);
+    set_rts(fd, 1);
     const size_t res = write(fd, str, len);
     assert(res == len);
     tcdrain(fd);
-    set_rts(0);
+    set_rts(fd, 0);
     usleep(200000);
     i1++;
   }
 }
 
-void set_rts(int flag) {
+void set_rts(int fd, int flag) {
   unsigned status;
   if (ioctl(fd, TIOCMGET, &status)) {
     goto error;
@@ -117,7 +118,7 @@ void set_rts(int flag) {
   return;
 
 error : {
-  printf("set rts failed code %i", errno);
+  perror("set rts failed");
   abort();
 }
 }

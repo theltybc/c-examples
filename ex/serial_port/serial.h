@@ -24,8 +24,7 @@ int open_port(const char *dev_file) {
     perror("fail: open dev");
     return -1;
   }
-  int res = fcntl(dev_fd, F_SETFL, 0);
-  if (res != 0) {
+  if (fcntl(dev_fd, F_SETFL, 0) != 0) {
     perror("fail: fcntl");
     return -1;
   }
