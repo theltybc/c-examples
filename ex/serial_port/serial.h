@@ -64,16 +64,13 @@ int setRS485(int dev_fd) {
 
   //    /* Set logical level for RTS pin equal to 1 when sending: */
   // rs485conf.flags |= SER_RS485_RTS_ON_SEND;
-  //    /* or, set logical level for RTS pin equal to 0 when sending: */
-  rs485conf.flags &= ~(SER_RS485_RTS_ON_SEND);
-  //
+
   //    /* Set logical level for RTS pin equal to 1 after sending: */
   rs485conf.flags |= SER_RS485_RTS_AFTER_SEND;
-  //    /* or, set logical level for RTS pin equal to 0 after sending: */
-  // rs485conf.flags &= ~(SER_RS485_RTS_AFTER_SEND);
-  //
+
   //    /* Set this flag if you want to receive data even whilst sending data */
   // rs485conf.flags |= SER_RS485_RX_DURING_TX;
+
   rs485conf.delay_rts_after_send = 5;
   rs485conf.delay_rts_before_send = 5;
 
