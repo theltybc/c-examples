@@ -14,13 +14,16 @@
 
 #include <modbus.h>
 
+#define BAUD (115200)
+#define DEV "/dev/ttyUSB0"
+
 #define SERVER_ID 1
 #define ADDRESS_START 0
-#define ADDRESS_END 10
+#define ADDRESS_END 40
 
-#define WRITE_BIT
-#define MULTIPLE_BITS
-#define SINGLE_REGISTER
+// #define WRITE_BIT
+// #define MULTIPLE_BITS
+// #define SINGLE_REGISTER
 #define MULTIPLE_REGISTERS
 
 /* At each loop, the program works in the range ADDRESS_START to
@@ -35,11 +38,15 @@ int main(void) {
   unsigned reqest_count = 0;
 
   /* RTU */
-  ctx = modbus_new_rtu("/dev/ttyUSB0", 115200, 'N', 8, 1);
+  ctx = modbus_new_rtu(DEV, BAUD, 'N', 8, 1);
   modbus_set_slave(ctx, SERVER_ID);
 
-  struct timeval tv = {0, 200 * 1000};
+#if LIBMODBUS_VERSION_MAJOR < 3
+  struct timeval tv = {0, 5000 * 1000};
   modbus_set_response_timeout(ctx, &tv);
+#else
+  modbus_set_response_timeout(ctx, 0, 5000 * 1000);
+#endif
 
   if (modbus_connect(ctx) == -1) {
     fprintf(stderr, "Connection failed: %s\n", modbus_strerror(errno));

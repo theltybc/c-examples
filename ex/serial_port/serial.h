@@ -74,7 +74,7 @@ int setRS485(int dev_fd) {
   rs485conf.delay_rts_after_send = 5;
   rs485conf.delay_rts_before_send = 5;
 
-  if (ioctl(dev_fd, TIOCGRS485, &rs485conf) != 0) {
+  if (ioctl(dev_fd, TIOCSRS485, &rs485conf) != 0) {
     // if (ioctl(dev_fd, TIOCSRS485, &rs485conf) != 0) {
     perror("fail: setup rs485");
     return -1;

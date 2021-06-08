@@ -15,6 +15,9 @@
 
 #include <modbus.h>
 
+#define BAUD (115200)
+#define DEV "/dev/ttyUSB0"
+
 #define SLAVE_ID 1
 
 int main(void) {
@@ -23,7 +26,7 @@ int main(void) {
   unsigned reqest_count = 0;
   unsigned error_count = 0;
 
-  ctx = modbus_new_rtu("/dev/ttyUSB0", 115200, 'N', 8, 1);
+  ctx = modbus_new_rtu(DEV, BAUD, 'N', 8, 1);
   // modbus_set_debug(ctx, TRUE);
 
   if (modbus_set_slave(ctx, SLAVE_ID)) {
@@ -39,8 +42,8 @@ int main(void) {
   }
   // modbus_mapping_t* modbus_mapping_new(int nb_coil_status, int nb_input_status,
   //                                      int nb_holding_registers, int nb_input_registers)
-  mb_mapping = modbus_mapping_new(MODBUS_MAX_RW_WRITE_REGISTERS, MODBUS_MAX_RW_WRITE_REGISTERS,
-                                  MODBUS_MAX_RW_WRITE_REGISTERS, MODBUS_MAX_RW_WRITE_REGISTERS);
+  mb_mapping = modbus_mapping_new(MODBUS_MAX_WR_WRITE_REGISTERS, MODBUS_MAX_WR_WRITE_REGISTERS,
+                                  MODBUS_MAX_WR_WRITE_REGISTERS, MODBUS_MAX_WR_WRITE_REGISTERS);
   if (mb_mapping == NULL) {
     fprintf(stderr, "Failed to allocate the mapping: %s\n", modbus_strerror(errno));
     modbus_free(ctx);
