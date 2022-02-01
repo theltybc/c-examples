@@ -43,6 +43,7 @@ char data_buffer[BUFFER_SIZE];
 
 int main() {
   int res;
+#if (PCAP_VERSION_MAJOR > 2) || (PCAP_VERSION_MAJOR == 2 && PCAP_VERSION_MINOR >= 4)
   pcap_if_t *dev_list = NULL;
   if (pcap_findalldevs(&dev_list, err_buff)) {
     printf("Fail: pcap_findalldevs - %s\n", err_buff);
@@ -61,8 +62,11 @@ int main() {
   //   dev_tmp = dev_list->next;
   // }
   pcap_freealldevs(dev_list);
-  // char *dev_name = "wlx00117f74dbf1";
+#else
+  char *dev_name = pcap_lookupdev(err_buff);
   check_error(dev_name, "get device");
+#endif
+  // char *dev_name = "wlx00117f74dbf1";
   printf("auto select dev: %s\n", dev_name);
 
   // int pcap_lookupnet(const char *device, bpf_u_int32 *netp, bpf_u_int32 *maskp, char *errbuf)
