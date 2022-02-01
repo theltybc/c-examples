@@ -43,7 +43,24 @@ char data_buffer[BUFFER_SIZE];
 
 int main() {
   int res;
-  char *dev_name = pcap_lookupdev(err_buff);
+  pcap_if_t *dev_list = NULL;
+  if (pcap_findalldevs(&dev_list, err_buff)) {
+    printf("Fail: pcap_findalldevs - %s\n", err_buff);
+    return EXIT_FAILURE;
+  }
+  if (dev_list == NULL){
+    printf("pcap_findalldevs not found devs\n");
+    return EXIT_SUCCESS;
+  }
+  char dev_name[strlen(dev_list->name) + 1];
+  strcpy(dev_name,dev_list->name);
+  // pcap_if_t *dev_tmp = dev_list;
+  // while (dev_tmp != NULL) {
+  //   printf("dev: %s\n", dev_tmp->name);
+  //   assert(dev_tmp != dev_list->next);
+  //   dev_tmp = dev_list->next;
+  // }
+  pcap_freealldevs(dev_list);
   // char *dev_name = "wlx00117f74dbf1";
   check_error(dev_name, "get device");
   printf("auto select dev: %s\n", dev_name);
